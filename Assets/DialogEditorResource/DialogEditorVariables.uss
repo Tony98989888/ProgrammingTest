@@ -1,0 +1,8 @@
+:root
+{
+    --dialogeditor-color-test-1: #2F329F;
+    --dialogeditor-color-test-2: rgba(30,93,15,1);
+    --dialogeditor-color-test-3: #FE860F;
+
+    --dialogeditor-grid-space: 25;
+}
