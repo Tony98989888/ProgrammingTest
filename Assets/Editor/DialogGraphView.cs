@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Codice.CM.WorkspaceServer;
@@ -21,9 +22,22 @@ namespace DialogEditor
             InitGraphStyleSheet();
         }
 
-        private DialogNode InitNode(Vector2 pos)
+        private DialogNode InitNode(DialogType nodeType, Vector2 pos)
         {
-            var node = new DialogNode();
+            Type nodeClassType;
+            
+            switch (nodeType)
+            {
+                case DialogType.Single:
+                    nodeClassType = typeof(LinearDialogNode);
+                    break;
+                case DialogType.Multiple:
+                    nodeClassType = typeof(MultiDialogNode);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
+            }
+            var node = (DialogNode) Activator.CreateInstance(nodeClassType);
             node.Init(pos);
             node.InitNodeUI();
             AddElement(node);
@@ -36,7 +50,8 @@ namespace DialogEditor
             this.AddManipulator(new ContentZoomer());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
-            this.AddManipulator(InitMenuManipulator());
+            this.AddManipulator(InitMenuManipulator("Linear Choice Node", DialogType.Single));
+            this.AddManipulator(InitMenuManipulator("Multi Choice Node", DialogType.Multiple));
         }
 
         private void InitGraphStyleSheet()
@@ -57,9 +72,9 @@ namespace DialogEditor
         }
 
         // In this way we can use right click menu to add new node
-        private IManipulator InitMenuManipulator()
+        private IManipulator InitMenuManipulator(string actionName, DialogType dialogType)
         {
-            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction("Add Dialog Node", actionEvent => AddElement(InitNode(actionEvent.eventInfo.localMousePosition))));
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction(actionName, actionEvent => AddElement(InitNode(dialogType, actionEvent.eventInfo.localMousePosition))));
             return contextualMenuManipulator;
         }
     }

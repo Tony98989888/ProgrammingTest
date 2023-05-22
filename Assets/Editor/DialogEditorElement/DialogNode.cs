@@ -14,9 +14,9 @@ namespace DialogEditor
         public List<string> Choices { get; set; }
 
         public string Context { get; set; }
-        public DialogType Type { get; set; }
+        public DialogType NodeType { get; set; }
 
-        public void Init(Vector2 initPos)
+        public virtual void Init(Vector2 initPos)
         {
             DialogName = "Name";
             Choices = new List<string>();
@@ -25,7 +25,7 @@ namespace DialogEditor
             SetPosition(initPos.ToRect());
         }
 
-        public void InitNodeUI()
+        public virtual void InitNodeUI()
         {
             TextField dialogName = new TextField
             {
@@ -52,8 +52,7 @@ namespace DialogEditor
             textFoldout.Add(context);
             customDataContainer.Add(textFoldout);
             extensionContainer.Add(customDataContainer);
-            
-            RefreshExpandedState();
+
         }
     }
 }

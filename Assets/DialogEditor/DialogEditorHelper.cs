@@ -1,5 +1,6 @@
-
+using System;
 using UnityEngine;
+using DialogEditor;
 
 namespace DialogEditor
 {
@@ -15,6 +16,6 @@ namespace DialogEditor
         {
             return new Rect(pos, Vector2.zero);
         }
-
+        
     }
 }
