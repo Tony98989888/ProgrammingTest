@@ -56,9 +56,11 @@ namespace DialogEditor
 
         private void InitGraphStyleSheet()
         {
+            var nodeStyleSheet = EditorGUIUtility.Load("Assets/DialogEditorResource/DialogEditorNodeStyle.uss") as StyleSheet;
             var styleSheet =
                 EditorGUIUtility.Load("Assets/DialogEditorResource/DialogEditorGraphViewStyleSheet.uss") as StyleSheet;
             styleSheets.Add(styleSheet);
+            styleSheets.Add(nodeStyleSheet);
         }
 
         /*

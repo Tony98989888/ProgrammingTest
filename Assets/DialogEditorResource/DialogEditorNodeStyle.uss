@@ -1,0 +1,83 @@
+/* 
+Container
+*/
+
+.dialogeditor-node-container
+{
+    background-color: brown;
+    padding: 8px;
+}
+
+.dialogeditor-node-data
+{
+    background-color: aqua;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.dialogeditor-node-textfield > .unity-text-field__input
+{
+    background-color: brown;
+    border-color: antiquewhite;
+    border-radius: 120px;
+    min-width: 160px;
+    max-width: 240px;
+    padding: 8px;
+}
+
+.dialogeditor-node-textfield-hidden > .unity-text-field__input
+{
+    background-color: rgba(0,0,0,0);
+    border-color: rgba(0,0,0,0);
+}
+
+.dialogeditor-node-textfield-hidden > .unity-text-field__input:focus
+{
+    background-color: chartreuse;
+    border-color: chocolate;
+}
+
+.dialogeditor-node-filename-textfield > .unity-text-field__input
+{
+    max-width: 1000px;
+}
+
+.dialogeditor-node-filename-textfield > .unity-text-field__input:focus
+{
+    margin: 4px;
+    padding: 4px;
+}
+
+.dialogeditor-node-choice-textfield > .unity-text-field__input
+{
+    font-size: 11px;
+    height: 35px;
+    max-width: 1000px;
+    min-width: 0px;
+}
+
+.dialogeditor-node-choice-textfield > .unity-text-field__input:focus
+{
+    height: 35px;
+    margin: 4px;
+    padding: 4px;
+}
+
+.dialogeditor-node-quote-textfield > .unity-text-field__input
+{
+    background-color: crimson;
+    border-color: rgba(0,0,0,0);
+    border-left-width: 4px;
+    padding: 16px;
+    max-width: 600px;
+}
+
+
+.dialogeditor-node-quote-textfield > .unity-text-field__input:focus
+{
+    background-color: crimson;
+    border-color: rgba(0,0,0,0);
+    border-left-width: 4px;
+    padding: 16px;
+    max-width: 600px;
+}
