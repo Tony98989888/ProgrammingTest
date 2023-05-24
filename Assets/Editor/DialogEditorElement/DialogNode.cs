@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Net.Mime;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace DialogEditor

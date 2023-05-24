@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Codice.CM.WorkspaceServer;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -21,11 +18,25 @@ namespace DialogEditor
             // Add style to graph view for customization
             InitGraphStyleSheet();
         }
+        public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
+        {
+            List<Port> compatiablePorts = new List<Port>();
+            ports.ForEach(port =>
+            {
+                if (startPort == port) { return; }
+
+                if (startPort.node == port.node) { return; }
+                if (startPort.direction == port.direction) { return; }
+                compatiablePorts.Add(port);
+            });
+
+            return compatiablePorts;
+        }
 
         private DialogNode InitNode(DialogType nodeType, Vector2 pos)
         {
             Type nodeClassType;
-            
+
             switch (nodeType)
             {
                 case DialogType.Single:
@@ -37,7 +48,7 @@ namespace DialogEditor
                 default:
                     throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
             }
-            var node = (DialogNode) Activator.CreateInstance(nodeClassType);
+            var node = (DialogNode)Activator.CreateInstance(nodeClassType);
             node.Init(pos);
             node.InitNodeUI();
             AddElement(node);
