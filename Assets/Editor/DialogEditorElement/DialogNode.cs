@@ -23,6 +23,9 @@ namespace DialogEditor
             Context = "Dialog Context";
             
             SetPosition(initPos.ToRect());
+            // Add style sheet
+            mainContainer.AddToClassList("dialogeditor-node-maincontainer");
+            extensionContainer.AddToClassList("dialogeditor-node-extensioncontainer");
         }
 
         public virtual void InitNodeUI()
@@ -31,7 +34,11 @@ namespace DialogEditor
             {
                 value = "DialogName"
             };
-            
+
+            dialogName.AddToClassList("dialogeditor-node-textfield");
+            dialogName.AddToClassList("dialogeditor-node-filename-textfield");
+            dialogName.AddToClassList("dialogeditor-node-textfield-hidden");
+
             titleContainer.Insert(0, dialogName);
 
             Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
@@ -39,6 +46,8 @@ namespace DialogEditor
             inputContainer.Add(inputPort);
 
             VisualElement customDataContainer = new VisualElement();
+            customDataContainer.AddToClassList("dialogeditor-node-custom-data-container");
+
             Foldout textFoldout = new Foldout
             {
                 text = "Dialog Text"
@@ -48,7 +57,11 @@ namespace DialogEditor
             {
                 value = Context
             };
-            
+
+            context.AddToClassList("dialogeditor-node-textfield");
+            context.AddToClassList("dialogeditor-node-choice-textfield");
+            context.AddToClassList("dialogeditor-node-textfield-hidden");
+
             textFoldout.Add(context);
             customDataContainer.Add(textFoldout);
             extensionContainer.Add(customDataContainer);

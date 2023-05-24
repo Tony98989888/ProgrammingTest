@@ -1,4 +1,3 @@
-using DialogEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,6 +17,8 @@ namespace DialogEditor
         {
             base.InitNodeUI();
             Button addChoiceBtn = new Button(){text = "Add Choice"};
+            addChoiceBtn.AddToClassList("dialogeditor-node-button");
+
             mainContainer.Insert(1, addChoiceBtn);
             
             foreach (var data in Choices)
@@ -27,7 +28,12 @@ namespace DialogEditor
                 port.portName = string.Empty;
 
                 Button deleteBtn = new Button() { text = "Delete" };
+                deleteBtn.AddToClassList("dialogeditor-node-button");
+
                 TextField textField = new TextField() { value = data};
+                textField.AddToClassList("dialogeditor-node-textfield");
+                textField.AddToClassList("dialogeditor-node-filename-textfield");
+
                 port.Add(deleteBtn);
                 port.Add(textField);
                 

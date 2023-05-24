@@ -1,8 +1,35 @@
 :root
 {
-    --dialogeditor-color-test-1: #2F329F;
-    --dialogeditor-color-test-2: rgba(30,93,15,1);
-    --dialogeditor-color-test-3: #FE860F;
+    --dialogeditor-color-test-1: #9DB2BF;
+    --dialogeditor-color-test-2: #9DB2BF;
+    --dialogeditor-color-test-3: #9DB2BF;
+
+
+    --dialogeditor-color-nodebackground: #371B58;
+    --dialogeditor-color-extensioncontainerbackground: #4C3575;
+    --dialogeditor-color-3: #5B4B8A;
+    --dialogeditor-color-textfield: #7858A6;    
+
+    --dialogeditor-color-buttonbackground: #F1F6F9;
+    --dialogeditor-color-buttonselected: #9BA4B5;
+    --dialogeditor-color-buttonhover: #212A3E;
+    --dialogeditor-color-buttonselectedbackground: #394867;
+
+    --dialogeditor-color-button-background: #261C2C;
+    --dialogeditor-color-button-default: #3C2A21;
+    --dialogeditor-color-button-hover: #4A3F35;
+    --dialogeditor-color-button-selected: #6E85B2;
+
+    --dialogeditor-color-node-background: #4C0070;
+    --dialogeditor-color-node-borderline: #9A0680;
+    --dialogeditor-color-node-extension-background: #160040;
+
+    --dialogeditor-color-maincontainer-bg: #1A120B;
+    --dialogeditor-color-extensioncontainer-bg: #3C2A21;
+
+    --dialogeditor-color-textfield-bg: #4A3F35;
+    --dialogeditor-color-textfield-border: #1D2D50;
+    --dialogeditor-color-textfield-focus: #4A3F35;
 
     --dialogeditor-grid-space: 25;
 }

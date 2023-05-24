@@ -4,25 +4,32 @@ Container
 
 .dialogeditor-node-container
 {
-    background-color: brown;
+    background-color: var(--dialogeditor-color-node-background);
     padding: 8px;
 }
 
 .dialogeditor-node-data
 {
-    background-color: aqua;
+    background-color: var(--dialogeditor-color-node-background);
     border-radius: 4px;
     padding: 8px;
 }
 
+.dialogeditor-node-maincontainer
+{
+    background-color: var(--dialogeditor-color-maincontainer-bg);
+}
+
+.dialogeditor-node-extensioncontainer
+{
+    background-color: var(--dialogeditor-color-extensioncontainer-bg);
+}
+
 .dialogeditor-node-textfield > .unity-text-field__input
 {
-    background-color: brown;
+    background-color: var(--dialogeditor-color-extensioncontainer-bg);
     border-color: antiquewhite;
-    border-radius: 120px;
-    min-width: 160px;
-    max-width: 240px;
-    padding: 8px;
+    flex-grow: 1;
 }
 
 .dialogeditor-node-textfield-hidden > .unity-text-field__input
@@ -33,19 +40,18 @@ Container
 
 .dialogeditor-node-textfield-hidden > .unity-text-field__input:focus
 {
-    background-color: chartreuse;
+    background-color: var(--dialogeditor-color-textfield-focus);
     border-color: chocolate;
 }
 
 .dialogeditor-node-filename-textfield > .unity-text-field__input
 {
-    max-width: 1000px;
+    flex-grow: 1;
 }
 
 .dialogeditor-node-filename-textfield > .unity-text-field__input:focus
 {
-    margin: 4px;
-    padding: 4px;
+    flex-grow: 1;
 }
 
 .dialogeditor-node-choice-textfield > .unity-text-field__input
@@ -65,19 +71,58 @@ Container
 
 .dialogeditor-node-quote-textfield > .unity-text-field__input
 {
-    background-color: crimson;
-    border-color: rgba(0,0,0,0);
+    background-color: var(--dialogeditor-color-textfield);
+    border-color: antiquewhite;
     border-left-width: 4px;
     padding: 16px;
     max-width: 600px;
 }
 
+.dialogeditor-node-quote-textfield > .unity-text-field__input:hover
+{
+    background-color: var(--dialogeditor-color-textfield-bg);
+}
 
 .dialogeditor-node-quote-textfield > .unity-text-field__input:focus
 {
-    background-color: crimson;
-    border-color: rgba(0,0,0,0);
-    border-left-width: 4px;
-    padding: 16px;
-    max-width: 600px;
+    background-color: var(--dialogeditor-color-textfield-focus);
+    border-color: antiquewhite;
+}
+
+/*button*/
+.dialogeditor-node-button
+{
+    background-color: var(--dialogeditor-color-button-default);
+    border-color: antiquewhite;
+    max-height: 25px;
+    margin: 4px;
+}
+
+.dialogeditor-node-button:hover
+{
+    background-color:  var(--dialogeditor-color-button-hover);
+}
+
+.dialogeditor-node-button:active
+{
+    background-color: var(--dialogeditor-color-button-selected);
+    color: antiquewhite;
+}
+
+.dialogeditor-node-custom-data-container > Foldout
+{
+    margin-left: -4px;
+    margin-top: 4px;
+}
+
+.dialogeditor-node-custom-data-container > Foldout > TextField
+{
+    margin-left: 2px;
+    margin-top: 2px;
+}
+
+.unity-toggle__text
+{
+    margin-left: 2px;
+    margin-top: 2px;
 }

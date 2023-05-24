@@ -76,7 +76,8 @@ namespace DialogEditor
         // In this way we can use right click menu to add new node
         private IManipulator InitMenuManipulator(string actionName, DialogType dialogType)
         {
-            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction(actionName, actionEvent => AddElement(InitNode(dialogType, actionEvent.eventInfo.localMousePosition))));
+            // Need to change mouse position to correct position
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction(actionName, actionEvent => AddElement(InitNode(dialogType, viewTransform.matrix.inverse.MultiplyPoint(actionEvent.eventInfo.localMousePosition)))));
             return contextualMenuManipulator;
         }
     }
