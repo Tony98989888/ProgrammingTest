@@ -1,3 +1,4 @@
+using DialogEditor.Helper;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,8 +33,7 @@ namespace DialogEditor
 
         private void InitStyleSheets()
         {
-            var styleSheet = EditorGUIUtility.Load("Assets/DialogEditorResource/DialogEditorVariables.uss") as StyleSheet;
-            rootVisualElement.styleSheets.Add(styleSheet);
+            rootVisualElement.ApplyStyleSheet("Assets/DialogEditorResource/DialogEditorVariables.uss");
         }
 
         private void InitGraphView()

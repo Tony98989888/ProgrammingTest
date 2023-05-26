@@ -1,3 +1,4 @@
+using DialogEditor.Helper;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -10,14 +11,27 @@ namespace DialogEditor
 {
     public class DialogGraphView : GraphView
     {
+
+        DialogEditorSearchWindow m_searchWindow;
         public DialogGraphView()
         {
             InitManipulator();
             InitGridBackGround();
+            InitSearchWindow();
 
             // Add style to graph view for customization
             InitGraphStyleSheet();
         }
+
+        private void InitSearchWindow()
+        {
+            if (m_searchWindow == null) 
+            {
+                m_searchWindow = ScriptableObject.CreateInstance<DialogEditorSearchWindow>();
+                m_searchWindow.Initialize(this);
+            }
+        }
+
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             List<Port> compatiablePorts = new List<Port>();
@@ -33,7 +47,7 @@ namespace DialogEditor
             return compatiablePorts;
         }
 
-        private DialogNode InitNode(DialogType nodeType, Vector2 pos)
+        public DialogNode InitNode(DialogType nodeType, Vector2 pos)
         {
             Type nodeClassType;
 
@@ -63,15 +77,31 @@ namespace DialogEditor
             this.AddManipulator(new RectangleSelector());
             this.AddManipulator(InitMenuManipulator("Linear Choice Node", DialogType.Single));
             this.AddManipulator(InitMenuManipulator("Multi Choice Node", DialogType.Multiple));
+
+            this.AddManipulator(InitGroupContextualMenu());
+        }
+
+        private IManipulator InitGroupContextualMenu()
+        {
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => AddElement(InitGroup("Dialog Node Group", viewTransform.matrix.inverse.MultiplyPoint(actionEvent.eventInfo.localMousePosition)))));
+            return contextualMenuManipulator;
+        }
+
+        public Group InitGroup(string title, Vector2 localMousePosition)
+        {
+            Group group = new Group()
+            {
+                title = title,
+            };
+
+            group.SetPosition(localMousePosition.ToRect());
+            return group;
         }
 
         private void InitGraphStyleSheet()
         {
-            var nodeStyleSheet = EditorGUIUtility.Load("Assets/DialogEditorResource/DialogEditorNodeStyle.uss") as StyleSheet;
-            var styleSheet =
-                EditorGUIUtility.Load("Assets/DialogEditorResource/DialogEditorGraphViewStyleSheet.uss") as StyleSheet;
-            styleSheets.Add(styleSheet);
-            styleSheets.Add(nodeStyleSheet);
+            this.ApplyStyleSheet("Assets/DialogEditorResource/DialogEditorNodeStyle.uss", 
+                "Assets/DialogEditorResource/DialogEditorGraphViewStyleSheet.uss");
         }
 
         /*

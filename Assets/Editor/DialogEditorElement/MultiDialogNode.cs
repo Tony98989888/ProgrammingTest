@@ -1,3 +1,4 @@
+using DialogEditor.Helper;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,31 +17,38 @@ namespace DialogEditor
         public override void InitNodeUI()
         {
             base.InitNodeUI();
-            Button addChoiceBtn = new Button(){text = "Add Choice"};
+            Button addChoiceBtn = DialogEditorElementHelper.CreateButton("Add Choice", () =>
+            {
+                Port port = AddChoicePort("New Dialog Choice");
+                outputContainer.Add(port);
+            });
             addChoiceBtn.AddToClassList("dialogeditor-node-button");
 
             mainContainer.Insert(1, addChoiceBtn);
-            
+
             foreach (var data in Choices)
             {
-                Port port = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single,
-                    typeof(bool));
-                port.portName = string.Empty;
-
-                Button deleteBtn = new Button() { text = "Delete" };
-                deleteBtn.AddToClassList("dialogeditor-node-button");
-
-                TextField textField = new TextField() { value = data};
-                textField.AddToClassList("dialogeditor-node-textfield");
-                textField.AddToClassList("dialogeditor-node-filename-textfield");
-
-                port.Add(deleteBtn);
-                port.Add(textField);
-                
+                Port port = this.AddChoicePort(data);
                 outputContainer.Add(port);
             }
-            
+
             RefreshExpandedState();
+        }
+
+        Port AddChoicePort(string context)
+        {
+            Port port = this.CreatePort(string.Empty, Orientation.Horizontal, Direction.Output, Port.Capacity.Single);
+
+            Button deleteBtn = DialogEditorElementHelper.CreateButton("Delete");
+            deleteBtn.AddToClassList("dialogeditor-node-button");
+
+            TextField textField = DialogEditorElementHelper.CreateTextField(context);
+            textField.AddToClassList("dialogeditor-node-textfield");
+            textField.AddToClassList("dialogeditor-node-filename-textfield");
+
+            port.Add(deleteBtn);
+            port.Add(textField);
+            return port;
         }
     }
 }

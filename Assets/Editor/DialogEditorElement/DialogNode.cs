@@ -1,3 +1,4 @@
+using DialogEditor.Helper;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -10,7 +11,6 @@ namespace DialogEditor
     {
         public string DialogName { get; set; }
         public List<string> Choices { get; set; }
-
         public string Context { get; set; }
         public DialogType NodeType { get; set; }
 
@@ -19,7 +19,7 @@ namespace DialogEditor
             DialogName = "Name";
             Choices = new List<string>();
             Context = "Dialog Context";
-            
+
             SetPosition(initPos.ToRect());
             // Add style sheet
             mainContainer.AddToClassList("dialogeditor-node-maincontainer");
@@ -28,33 +28,21 @@ namespace DialogEditor
 
         public virtual void InitNodeUI()
         {
-            TextField dialogName = new TextField
-            {
-                value = "DialogName"
-            };
+            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName);
 
-            dialogName.AddToClassList("dialogeditor-node-textfield");
-            dialogName.AddToClassList("dialogeditor-node-filename-textfield");
-            dialogName.AddToClassList("dialogeditor-node-textfield-hidden");
+            dialogName.ApplyClasses("dialogeditor-node-textfield", "dialogeditor-node-filename-textfield", "dialogeditor-node-textfield-hidden");
 
             titleContainer.Insert(0, dialogName);
 
-            Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            inputPort.portName = "Dialog Input Port";
+            Port inputPort = this.CreatePort("Dialog Input Port", Orientation.Horizontal, Direction.Input, Port.Capacity.Multi);
             inputContainer.Add(inputPort);
 
             VisualElement customDataContainer = new VisualElement();
             customDataContainer.AddToClassList("dialogeditor-node-custom-data-container");
 
-            Foldout textFoldout = new Foldout
-            {
-                text = "Dialog Text"
-            };
+            Foldout textFoldout = DialogEditorElementHelper.CreateFoldout("Dialog Text");
 
-            TextField context = new TextField
-            {
-                value = Context
-            };
+            TextField context = DialogEditorElementHelper.CreateTextArea(Context);
 
             context.AddToClassList("dialogeditor-node-textfield");
             context.AddToClassList("dialogeditor-node-choice-textfield");
@@ -63,7 +51,6 @@ namespace DialogEditor
             textFoldout.Add(context);
             customDataContainer.Add(textFoldout);
             extensionContainer.Add(customDataContainer);
-
         }
     }
 }
