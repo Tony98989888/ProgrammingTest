@@ -1,5 +1,7 @@
 using System;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DialogEditor.Helper
@@ -54,6 +56,22 @@ namespace DialogEditor.Helper
             Port port = node.InstantiatePort(orientation, dir, capacity, typeof(bool));
             port.portName = portName;
             return port;
+        }
+
+        public static Vector2 GetScreenLocalMousePosition(Vector2 mousePos, GraphView graphView) 
+        {
+            // Need to turn a world position point into element space
+            Vector2 worldMousePos = mousePos;
+            Vector2 localMousePos = graphView.contentViewContainer.WorldToLocal(worldMousePos);
+            return localMousePos;
+        }
+
+        public static Vector2 GetSearchWindowLocalMousePosition(Vector2 mousePos, DialogGraphView graphView)
+        { // Need to turn a world position point into element space
+            Vector2 worldMousePos = mousePos;
+            worldMousePos -= graphView.Parent.position.position;
+            Vector2 localMousePos = graphView.contentViewContainer.WorldToLocal(worldMousePos);
+            return localMousePos;
         }
     }
 }

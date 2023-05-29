@@ -13,8 +13,14 @@ namespace DialogEditor
     {
 
         DialogEditorSearchWindow m_searchWindow;
-        public DialogGraphView()
+        DialogEditorWindow m_window;
+
+        public EditorWindow Parent => m_window;
+        public DialogGraphView(DialogEditorWindow mainWindow)
         {
+
+            m_window = mainWindow;
+
             InitManipulator();
             InitGridBackGround();
             InitSearchWindow();
@@ -30,6 +36,8 @@ namespace DialogEditor
                 m_searchWindow = ScriptableObject.CreateInstance<DialogEditorSearchWindow>();
                 m_searchWindow.Initialize(this);
             }
+            // Happen when press space in graph view
+            nodeCreationRequest = context => SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), m_searchWindow) ;
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)

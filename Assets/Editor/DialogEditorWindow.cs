@@ -38,7 +38,7 @@ namespace DialogEditor
 
         private void InitGraphView()
         {
-            var graphView = new DialogGraphView();
+            var graphView = new DialogGraphView(this);
             graphView.StretchToParentSize();
             rootVisualElement.Add(graphView);
         }
