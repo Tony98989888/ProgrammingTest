@@ -7,9 +7,9 @@ namespace  DialogEditor
     public class LinearDialogNode : DialogNode
     {
         // For data
-        public override void Init(Vector2 initPos)
+        public override void Init(DialogGraphView graphView, Vector2 initPos)
         {
-            base.Init(initPos);
+            base.Init(graphView, initPos);
             NodeType = DialogType.Single;
             Choices.Add("Next Dialog");
         }

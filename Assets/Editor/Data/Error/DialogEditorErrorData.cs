@@ -1,3 +1,4 @@
+using DialogEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace DialogColor
 {
     public class DialogEditorErrorData
     {
-        public Color m_color;
+        Color m_color;
         public Color ErrorColor => m_color;
 
         public DialogEditorErrorData()

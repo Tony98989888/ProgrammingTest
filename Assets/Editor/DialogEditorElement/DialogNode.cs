@@ -1,4 +1,5 @@
 using DialogEditor.Helper;
+using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -9,16 +10,27 @@ namespace DialogEditor
     // Should be added in graph view
     public class DialogNode : Node
     {
+        public enum NodeStyle 
+        {
+            Error,
+            Normal,
+        }
+
+        NodeStyle m_style = NodeStyle.Normal;
+
+        DialogGraphView m_graphView;
+
         public string DialogName { get; set; }
         public List<string> Choices { get; set; }
         public string Context { get; set; }
         public DialogType NodeType { get; set; }
 
-        public virtual void Init(Vector2 initPos)
+        public virtual void Init(DialogGraphView graphView, Vector2 initPos)
         {
             DialogName = "Name";
             Choices = new List<string>();
             Context = "Dialog Context";
+            m_graphView = graphView;
 
             SetPosition(initPos.ToRect());
             // Add style sheet
@@ -28,7 +40,13 @@ namespace DialogEditor
 
         public virtual void InitNodeUI()
         {
-            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName);
+            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, changeEvent => 
+            {
+                m_graphView.RemoveUngroupedNode(this);
+                // New value is the one use type in
+                DialogName = changeEvent.newValue;
+                m_graphView.AddUngroupedNode(this);
+            });
 
             dialogName.ApplyClasses("dialogeditor-node-textfield", "dialogeditor-node-filename-textfield", "dialogeditor-node-textfield-hidden");
 
@@ -51,6 +69,21 @@ namespace DialogEditor
             textFoldout.Add(context);
             customDataContainer.Add(textFoldout);
             extensionContainer.Add(customDataContainer);
+        }
+
+        public void UpdateNodeColor(NodeStyle style, Color color) 
+        {
+            switch (style)
+            {
+                case NodeStyle.Error:
+                    mainContainer.style.backgroundColor = color;
+                    break;
+                case NodeStyle.Normal:
+                    mainContainer.style.backgroundColor = DialogEditorStyleSheetHelper.DefaultNodeBGColor;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

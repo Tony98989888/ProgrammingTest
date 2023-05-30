@@ -7,9 +7,9 @@ namespace DialogEditor
 {
     public class MultiDialogNode : DialogNode
     {
-        public override void Init(Vector2 initPos)
+        public override void Init(DialogGraphView graphView, Vector2 initPos)
         {
-            base.Init(initPos);
+            base.Init(graphView, initPos);
             NodeType = DialogType.Multiple;
             Choices.Add("New Choice");
         }
