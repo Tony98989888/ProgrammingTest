@@ -1,10 +1,8 @@
-using DialogColor;
 using DialogEditor.Helper;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,7 +14,10 @@ namespace DialogEditor
 
         DialogEditorSearchWindow m_searchWindow;
         DialogEditorWindow m_window;
+
+        // Nodes and groups should not have same name
         SerializableDictionary<string, DialogEditorNodeErrorData> m_unGroupedNodes;
+        SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>> m_groupedNodes;
 
         public EditorWindow Parent => m_window;
         public DialogGraphView(DialogEditorWindow mainWindow)
@@ -24,11 +25,13 @@ namespace DialogEditor
 
             m_window = mainWindow;
             m_unGroupedNodes = new SerializableDictionary<string, DialogEditorNodeErrorData>();
+            m_groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>>();
 
             InitManipulator();
             InitGridBackGround();
             InitSearchWindow();
             OnNodeDelete();
+            OnGroupNodeAdded();
 
             // Add style to graph view for customization
             InitGraphStyleSheet();
@@ -127,6 +130,100 @@ namespace DialogEditor
             }
         }
 
+        private void OnGroupNodeAdded()
+        {
+            elementsAddedToGroup = (group, elements) =>
+            {
+                foreach (var element in elements)
+                {
+                    if (element is DialogNode)
+                    {
+                        RemoveUngroupedNode((DialogNode)element);
+                        AddGroupedNode((DialogNode)element, group);
+                    }
+                }
+            };
+        }
+
+        private void OnGroupNodeRemoved() 
+        {
+            elementsRemovedFromGroup = (group, elements) => 
+            {
+                foreach (var element in elements)
+                {
+                    if (element is DialogNode)
+                    {
+                        // TODO Need to remove node from group
+                        RemoveGroupedNode((DialogNode)element, group);
+                        AddUngroupedNode((DialogNode)element);
+                    }
+                }
+            };
+        }
+
+
+        private void AddGroupedNode(DialogNode node, Group group)
+        {
+            string name = node.DialogName;
+            if (m_groupedNodes.TryGetValue(group, out var data))
+            {
+                if (data.TryGetValue(name, out var errorData))
+                {
+                    errorData.DialogNodes.Add(node);
+                    Color errorColor = errorData.ErrorData.ErrorColor;
+                    if (errorData.DialogNodes.Count > 1)
+                    {
+                        foreach (var item in errorData.DialogNodes)
+                        {
+                            item.UpdateNodeColor(DialogNode.NodeStyle.Error, errorColor);
+                        }
+                    }
+                }
+                else
+                {
+                    // Group exist add new node
+                    DialogEditorNodeErrorData _errorData = new DialogEditorNodeErrorData();
+                    _errorData.DialogNodes.Add(node);
+                    m_groupedNodes[group].Add(name, errorData);
+                }
+            }
+            else
+            {
+                m_groupedNodes.Add(group, new SerializableDictionary<string, DialogEditorNodeErrorData>());
+            }
+        }
+
+        private void RemoveGroupedNode(DialogNode node, Group group) 
+        {
+            string name = node.DialogName;
+            if (m_groupedNodes.TryGetValue(group, out var data))
+            {
+                if (data.TryGetValue(name, out var errorData))
+                {
+                    // node.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
+                    errorData.DialogNodes.Remove(node);
+                    switch (errorData.DialogNodes.Count)
+                    {
+                        case 0:
+                            m_groupedNodes[group].Remove(name);
+                            if (m_groupedNodes[group].Count == 0)
+                            {
+                                m_groupedNodes.Remove(group);
+                            }
+                            break;
+                        case 1:
+                            foreach (var item in errorData.DialogNodes)
+                            {
+                                item.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
         private void InitManipulator()
         {
             this.AddManipulator(new ContentDragger());
@@ -145,14 +242,9 @@ namespace DialogEditor
             return contextualMenuManipulator;
         }
 
-        public Group InitGroup(string title, Vector2 localMousePosition)
+        public DialogNodeGroup InitGroup(string title, Vector2 localMousePosition)
         {
-            Group group = new Group()
-            {
-                title = title,
-            };
-
-            group.SetPosition(localMousePosition.ToRect());
+            DialogNodeGroup group = new DialogNodeGroup(title, localMousePosition);
             return group;
         }
 
@@ -180,12 +272,12 @@ namespace DialogEditor
             return contextualMenuManipulator;
         }
 
-        private void OnNodeDelete() 
+        private void OnNodeDelete()
         {
             deleteSelection = (operationName, askUser) =>
             {
                 List<DialogNode> readyDeleteNodes = new List<DialogNode>();
-                foreach (GraphElement item in selection) 
+                foreach (GraphElement item in selection)
                 {
                     if (item is DialogNode node)
                     {
