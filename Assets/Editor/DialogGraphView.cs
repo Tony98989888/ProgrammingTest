@@ -1,4 +1,5 @@
 using DialogEditor.Helper;
+using log4net.Filter;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -18,6 +19,7 @@ namespace DialogEditor
         // Nodes and groups should not have same name
         SerializableDictionary<string, DialogEditorNodeErrorData> m_unGroupedNodes;
         SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>> m_groupedNodes;
+        SerializableDictionary<string, DialogEditorGroupErrorData> m_groups;
 
         public EditorWindow Parent => m_window;
         public DialogGraphView(DialogEditorWindow mainWindow)
@@ -26,11 +28,12 @@ namespace DialogEditor
             m_window = mainWindow;
             m_unGroupedNodes = new SerializableDictionary<string, DialogEditorNodeErrorData>();
             m_groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>>();
+            m_groups = new SerializableDictionary<string, DialogEditorGroupErrorData>();
 
             InitManipulator();
             InitGridBackGround();
             InitSearchWindow();
-            OnNodeDelete();
+            OnGraphElementDelete();
             OnGroupNodeAdded();
             OnGroupNodeRemoved();
 
@@ -143,7 +146,7 @@ namespace DialogEditor
                     if (element is DialogNode)
                     {
                         RemoveUngroupedNode((DialogNode)element);
-                        AddGroupedNode((DialogNode)element, group);
+                        AddGroupedNode((DialogNode)element, (DialogNodeGroup)group);
                     }
                 }
             };
@@ -166,7 +169,7 @@ namespace DialogEditor
         }
 
 
-        public void AddGroupedNode(DialogNode node, Group group)
+        public void AddGroupedNode(DialogNode node, DialogNodeGroup group)
         {
             string name = node.DialogName;
             node.ParentGroup = group;
@@ -255,7 +258,29 @@ namespace DialogEditor
         public DialogNodeGroup InitGroup(string title, Vector2 localMousePosition)
         {
             DialogNodeGroup group = new DialogNodeGroup(title, localMousePosition);
+            AddGroup(group);
             return group;
+        }
+
+        private void AddGroup(DialogNodeGroup group)
+        {
+            var name = group.title;
+            if (!m_groups.TryGetValue(name, out var data))
+            {
+                DialogEditorGroupErrorData errorData = new DialogEditorGroupErrorData();
+                errorData.Groups.Add(group);
+                m_groups.Add(name, errorData);
+                return;
+            }
+            else
+            {
+                data.Groups.Add(group);
+                Color errorColor = data.ErrorData.ErrorColor;
+                foreach (var item in data.Groups)
+                {
+                    item.UpdateGroupColor(DialogNodeGroup.GroupStyle.Error, errorColor);
+                }
+            }
         }
 
         private void InitGraphStyleSheet()
@@ -282,8 +307,10 @@ namespace DialogEditor
             return contextualMenuManipulator;
         }
 
-        private void OnNodeDelete()
+        private void OnGraphElementDelete()
         {
+            Type groupType = typeof(DialogNodeGroup);
+
             deleteSelection = (operationName, askUser) =>
             {
                 List<DialogNode> readyDeleteNodes = new List<DialogNode>();

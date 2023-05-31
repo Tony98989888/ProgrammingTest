@@ -26,8 +26,8 @@ namespace DialogEditor
         public DialogType NodeType { get; set; }
 
         // The group node is currently in
-        private Group m_group;
-        public Group ParentGroup { get => m_group; set => m_group = value; }
+        private DialogNodeGroup m_group;
+        public DialogNodeGroup ParentGroup { get => m_group; set => m_group = value; }
 
         public virtual void Init(DialogGraphView graphView, Vector2 initPos)
         {
@@ -54,7 +54,7 @@ namespace DialogEditor
                 }
                 else
                 {
-                    Group tmp = m_group;
+                    DialogNodeGroup tmp = m_group;
                     // Group will be null
                     m_graphView.RemoveGroupedNode(this, m_group);
                     DialogName = changeEvent.newValue;
