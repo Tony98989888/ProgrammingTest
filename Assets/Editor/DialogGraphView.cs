@@ -32,6 +32,7 @@ namespace DialogEditor
             InitSearchWindow();
             OnNodeDelete();
             OnGroupNodeAdded();
+            OnGroupNodeRemoved();
 
             // Add style to graph view for customization
             InitGraphStyleSheet();
@@ -54,7 +55,6 @@ namespace DialogEditor
             ports.ForEach(port =>
             {
                 if (startPort == port) { return; }
-
                 if (startPort.node == port.node) { return; }
                 if (startPort.direction == port.direction) { return; }
                 compatiablePorts.Add(port);
@@ -128,6 +128,10 @@ namespace DialogEditor
                         break;
                 }
             }
+            else
+            {
+                Debug.LogError("Removing Node Do Not Exist!");
+            }
         }
 
         private void OnGroupNodeAdded()
@@ -162,9 +166,10 @@ namespace DialogEditor
         }
 
 
-        private void AddGroupedNode(DialogNode node, Group group)
+        public void AddGroupedNode(DialogNode node, Group group)
         {
             string name = node.DialogName;
+            node.ParentGroup = group;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
                 if (data.TryGetValue(name, out var errorData))
@@ -184,18 +189,23 @@ namespace DialogEditor
                     // Group exist add new node
                     DialogEditorNodeErrorData _errorData = new DialogEditorNodeErrorData();
                     _errorData.DialogNodes.Add(node);
-                    m_groupedNodes[group].Add(name, errorData);
+                    m_groupedNodes[group].Add(name, _errorData);
                 }
             }
             else
             {
+                // Group do not exist add new node in it
                 m_groupedNodes.Add(group, new SerializableDictionary<string, DialogEditorNodeErrorData>());
+                DialogEditorNodeErrorData _errorData = new DialogEditorNodeErrorData();
+                _errorData.DialogNodes.Add(node);
+                m_groupedNodes[group].Add(name, _errorData);
             }
         }
 
-        private void RemoveGroupedNode(DialogNode node, Group group) 
+        public void RemoveGroupedNode(DialogNode node, Group group) 
         {
             string name = node.DialogName;
+            node.ParentGroup = null;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
                 if (data.TryGetValue(name, out var errorData))
@@ -287,6 +297,10 @@ namespace DialogEditor
 
                 foreach (var item in readyDeleteNodes)
                 {
+                    if (item.ParentGroup != null)
+                    {
+                        item.ParentGroup.RemoveElement(item);
+                    }
                     RemoveUngroupedNode(item);
                     RemoveElement(item);
                 }

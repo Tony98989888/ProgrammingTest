@@ -25,6 +25,10 @@ namespace DialogEditor
         public string Context { get; set; }
         public DialogType NodeType { get; set; }
 
+        // The group node is currently in
+        private Group m_group;
+        public Group ParentGroup { get => m_group; set => m_group = value; }
+
         public virtual void Init(DialogGraphView graphView, Vector2 initPos)
         {
             DialogName = "Name";
@@ -42,10 +46,20 @@ namespace DialogEditor
         {
             TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, changeEvent => 
             {
-                m_graphView.RemoveUngroupedNode(this);
-                // New value is the one use type in
-                DialogName = changeEvent.newValue;
-                m_graphView.AddUngroupedNode(this);
+                if (m_group == null)
+                {
+                    m_graphView.RemoveUngroupedNode(this);
+                    DialogName = changeEvent.newValue;
+                    m_graphView.AddUngroupedNode(this);
+                }
+                else
+                {
+                    Group tmp = m_group;
+                    // Group will be null
+                    m_graphView.RemoveGroupedNode(this, m_group);
+                    DialogName = changeEvent.newValue;
+                    m_graphView.AddGroupedNode(this, tmp);
+                }
             });
 
             dialogName.ApplyClasses("dialogeditor-node-textfield", "dialogeditor-node-filename-textfield", "dialogeditor-node-textfield-hidden");
