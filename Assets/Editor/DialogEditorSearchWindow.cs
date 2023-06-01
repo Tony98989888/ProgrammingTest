@@ -50,8 +50,7 @@ namespace DialogEditor
                     m_GraphView.AddElement(multiNode);
                     return true;
                 case Group _:
-                    DialogNodeGroup group = m_GraphView.InitGroup("Dialog Group", localMousePos);
-                    m_GraphView.AddElement(group);
+                    m_GraphView.InitGroup("Dialog Group", localMousePos);
                     return true;
                 default:
                     return false;

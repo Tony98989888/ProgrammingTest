@@ -1,10 +1,11 @@
+using Codice.CM.SEIDInfo;
 using DialogEditor.Helper;
-using log4net.Filter;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Experimental.AI;
 using UnityEngine.UIElements;
 
 
@@ -36,6 +37,7 @@ namespace DialogEditor
             OnGraphElementDelete();
             OnGroupNodeAdded();
             OnGroupNodeRemoved();
+            OnGroupTitleChanged();
 
             // Add style to graph view for customization
             InitGraphStyleSheet();
@@ -251,7 +253,7 @@ namespace DialogEditor
 
         private IManipulator InitGroupContextualMenu()
         {
-            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => AddElement(InitGroup("Dialog Node Group", viewTransform.matrix.inverse.MultiplyPoint(actionEvent.eventInfo.localMousePosition)))));
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => InitGroup("Dialog Node Group", viewTransform.matrix.inverse.MultiplyPoint(actionEvent.eventInfo.localMousePosition))));
             return contextualMenuManipulator;
         }
 
@@ -259,6 +261,15 @@ namespace DialogEditor
         {
             DialogNodeGroup group = new DialogNodeGroup(title, localMousePosition);
             AddGroup(group);
+            AddElement(group);
+            // When create group with nodes selected, should add selected nodes to group automatically
+            foreach (GraphElement element in selection)
+            {
+                if (element is DialogNode node)
+                {
+                    group.AddElement(node);
+                }
+            }
             return group;
         }
 
@@ -299,6 +310,17 @@ namespace DialogEditor
             Insert(0, backGround);
         }
 
+        private void OnGroupTitleChanged() 
+        {
+            groupTitleChanged = (group, title) => 
+            {
+                DialogNodeGroup _group = (DialogNodeGroup)group;
+                DeleteGroup(_group);
+                _group.PreviousTitle = title;
+                AddGroup(_group);
+            };
+        }
+
         // In this way we can use right click menu to add new node
         private IManipulator InitMenuManipulator(string actionName, DialogType dialogType)
         {
@@ -310,16 +332,46 @@ namespace DialogEditor
         private void OnGraphElementDelete()
         {
             Type groupType = typeof(DialogNodeGroup);
+            List<DialogNode> readyDeleteNodes = new List<DialogNode>();
+            List<DialogNodeGroup> readyDeleteGroup = new List<DialogNodeGroup>();
+            Action<List<ISelectable>> typeCheck = (List<ISelectable> element) => 
+            {
+                foreach (var item in element) 
+                {
+                    switch (item)
+                    {
+                        case DialogNode node:
+                            readyDeleteNodes.Add(node);
+                            break;
+                        case Group group:
+                            var _group = (DialogNodeGroup)group;
+                            DeleteGroup(_group);
+                            readyDeleteGroup.Add(_group);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            };
 
             deleteSelection = (operationName, askUser) =>
             {
-                List<DialogNode> readyDeleteNodes = new List<DialogNode>();
-                foreach (GraphElement item in selection)
+                typeCheck(selection);
+
+                foreach (DialogNodeGroup item in readyDeleteGroup)
                 {
-                    if (item is DialogNode node)
+                    List<DialogNode> nodes = new List<DialogNode> ();
+                    foreach (GraphElement element in item.containedElements)
                     {
-                        readyDeleteNodes.Add(node);
+                        if (element is DialogNode node)
+                        {
+                            nodes.Add(node);
+                        }
                     }
+
+                    // Need to remove all nodes when deleteing a group
+                    item.RemoveElements(nodes);
+                    RemoveElement(item);
                 }
 
                 foreach (var item in readyDeleteNodes)
@@ -332,6 +384,24 @@ namespace DialogEditor
                     RemoveElement(item);
                 }
             };
+        }
+
+        private void DeleteGroup(DialogNodeGroup group)
+        {
+            string name = group.PreviousTitle;
+            if (m_groups.TryGetValue(name, out var data))
+            {
+                group.UpdateGroupColor(DialogNodeGroup.GroupStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
+                data.Groups.Remove(group);
+                switch (data.Groups.Count) 
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        data.Groups[0].UpdateGroupColor(DialogNodeGroup.GroupStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
+                        break;
+                }
+            }
         }
     }
 }

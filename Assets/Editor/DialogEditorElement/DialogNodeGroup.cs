@@ -8,6 +8,8 @@ namespace DialogEditor
         Color m_defaultBorderColor;
         float m_defaultBorderWidth;
 
+        public string PreviousTitle;
+
         public enum GroupStyle
         {
             Normal,
@@ -20,6 +22,7 @@ namespace DialogEditor
         {
 
             this.title = title;
+            PreviousTitle = title;
             SetPosition(position.ToRect()) ;
             m_defaultBorderColor = contentContainer.style.borderBottomColor.value;
             m_defaultBorderWidth = contentContainer.style.borderBottomWidth.value;
@@ -31,12 +34,12 @@ namespace DialogEditor
             switch (style)
             {
                 case GroupStyle.Normal:
-                    contentContainer.style.borderBottomColor = m_defaultBorderColor;
+                    contentContainer.style.borderTopColor = m_defaultBorderColor;
                     contentContainer.style.borderBottomWidth = m_defaultBorderWidth;
                     break;
                 case GroupStyle.Error:
-                    contentContainer.style.borderBottomColor = color;
-                    contentContainer.style.borderBottomWidth = m_defaultBorderWidth * 2.0f;
+                    contentContainer.style.borderTopColor = color;
+                    contentContainer.style.borderBottomWidth = m_defaultBorderWidth;
                     break;
             }
         }
