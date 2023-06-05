@@ -99,6 +99,28 @@ namespace DialogEditor
                     break;
             }
         }
+
+        public void ClearPortEdges(VisualElement container) 
+        {
+            foreach (Port port in container.Children())
+            {
+                if (!port.connected) { continue; }
+                m_graphView.DeleteElements(port.connections);
+            }
+        }
+
+        public void ClearAllPorts() 
+        {
+            ClearPortEdges(inputContainer);
+            ClearPortEdges(outputContainer);
+        }
+
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            base.BuildContextualMenu(evt);
+            evt.menu.AppendAction("Clear Input Ports", actionEvent => ClearPortEdges(inputContainer));
+            evt.menu.AppendAction("Clear Output Ports", actionEvent => ClearPortEdges(outputContainer));
+        }
     }
 }
 

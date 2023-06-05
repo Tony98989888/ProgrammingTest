@@ -1,5 +1,6 @@
 using Codice.CM.SEIDInfo;
 using DialogEditor.Helper;
+using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -334,6 +335,7 @@ namespace DialogEditor
             Type groupType = typeof(DialogNodeGroup);
             List<DialogNode> readyDeleteNodes = new List<DialogNode>();
             List<DialogNodeGroup> readyDeleteGroup = new List<DialogNodeGroup>();
+            List<Edge> readyDeleteEdges = new List<Edge>();
             Action<List<ISelectable>> typeCheck = (List<ISelectable> element) => 
             {
                 foreach (var item in element) 
@@ -348,6 +350,9 @@ namespace DialogEditor
                             DeleteGroup(_group);
                             readyDeleteGroup.Add(_group);
                             break;
+                        case Edge edge:
+                            readyDeleteEdges.Add(edge);
+                            break;
                         default:
                             break;
                     }
@@ -357,6 +362,8 @@ namespace DialogEditor
             deleteSelection = (operationName, askUser) =>
             {
                 typeCheck(selection);
+
+                DeleteElements(readyDeleteEdges);
 
                 foreach (DialogNodeGroup item in readyDeleteGroup)
                 {
@@ -381,6 +388,7 @@ namespace DialogEditor
                         item.ParentGroup.RemoveElement(item);
                     }
                     RemoveUngroupedNode(item);
+                    item.ClearAllPorts();
                     RemoveElement(item);
                 }
             };
