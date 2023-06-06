@@ -1,0 +1,48 @@
+Toolbar
+{
+	background-color: var(--dialogeditor-color-node-background);
+	height: var(--dialogeditor-grid-space);
+}
+
+TextField
+{
+	padding: 4px;
+}
+
+Button
+{
+    background-color: var(--dialogeditor-color-button-default);
+    border-color: antiquewhite;
+    max-height: 25px;
+    margin: 4px;
+}
+
+Button:hover
+{
+    background-color:  var(--dialogeditor-color-button-hover);
+}
+
+Button:active
+{
+    background-color: var(--dialogeditor-color-button-selected);
+    color: antiquewhite;
+}
+
+.unity-text-field-label
+{
+    padding: 4px;
+}
+
+TextField:focus > .unity-text-field-label
+{
+    color: var(--dialogeditor-color-textfield-focus);
+}
+
+.unity-text-field__input
+{
+    background-color: var(--dialogeditor-color-textfield);
+    border-color: antiquewhite;
+    border-left-width: 4px;
+    padding: 16px;
+    max-width: 600px;
+}

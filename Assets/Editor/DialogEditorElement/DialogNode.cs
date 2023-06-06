@@ -10,6 +10,9 @@ namespace DialogEditor
     // Should be added in graph view
     public class DialogNode : Node
     {
+        // Unique id for reference
+        public string Id;
+
         public enum NodeStyle 
         {
             Error,
@@ -31,6 +34,8 @@ namespace DialogEditor
 
         public virtual void Init(DialogGraphView graphView, Vector2 initPos)
         {
+            Id = Guid.NewGuid().ToString();
+
             DialogName = "Name";
             Choices = new List<string>();
             Context = "Dialog Context";
@@ -44,12 +49,15 @@ namespace DialogEditor
 
         public virtual void InitNodeUI()
         {
-            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, changeEvent => 
+            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, null, changeEvent => 
             {
+                TextField tmpTextField = (TextField)changeEvent.target;
+                tmpTextField.value = DialogEditorStringHelper.FormatText(changeEvent.newValue);
+
                 if (m_group == null)
                 {
                     m_graphView.RemoveUngroupedNode(this);
-                    DialogName = changeEvent.newValue;
+                    DialogName = tmpTextField.value;
                     m_graphView.AddUngroupedNode(this);
                 }
                 else

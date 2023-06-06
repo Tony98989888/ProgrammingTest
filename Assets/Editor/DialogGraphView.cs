@@ -23,6 +23,27 @@ namespace DialogEditor
         SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>> m_groupedNodes;
         SerializableDictionary<string, DialogEditorGroupErrorData> m_groups;
 
+        int m_errorNodeCount = 0;
+
+        public int ErrorNodeCount
+        {
+            get { return m_errorNodeCount; }
+            set
+            {
+                m_errorNodeCount = value;
+                if (m_errorNodeCount == 0)
+                {
+                    // TODO Enable save funciton button
+                    m_window.ActiveSaveButton(true);
+                }
+                else
+                {
+                    // TODO Disable save button
+                    m_window.ActiveSaveButton(false);
+                }
+            }
+        }
+
         public EditorWindow Parent => m_window;
         public DialogGraphView(DialogEditorWindow mainWindow)
         {
@@ -95,7 +116,7 @@ namespace DialogEditor
 
         public void AddUngroupedNode(DialogNode node)
         {
-            string nodeName = node.DialogName;
+            string nodeName = node.DialogName.ToLower();
             if (!m_unGroupedNodes.ContainsKey(nodeName))
             {
                 DialogEditorNodeErrorData data = new DialogEditorNodeErrorData();
@@ -106,6 +127,7 @@ namespace DialogEditor
             else
             {
                 m_unGroupedNodes[nodeName].DialogNodes.Add(node);
+                ErrorNodeCount++;
                 //Have duplicated nodes means error
                 foreach (var item in m_unGroupedNodes[nodeName].DialogNodes)
                 {
@@ -117,11 +139,12 @@ namespace DialogEditor
 
         public void RemoveUngroupedNode(DialogNode node)
         {
-            string nodeName = node.DialogName;
+            string nodeName = node.DialogName.ToLower();
             if (m_unGroupedNodes.TryGetValue(nodeName, out var data))
             {
                 node.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
                 data.DialogNodes.Remove(node);
+                ErrorNodeCount--;
                 switch (data.DialogNodes.Count)
                 {
                     case 0:
@@ -155,9 +178,9 @@ namespace DialogEditor
             };
         }
 
-        private void OnGroupNodeRemoved() 
+        private void OnGroupNodeRemoved()
         {
-            elementsRemovedFromGroup = (group, elements) => 
+            elementsRemovedFromGroup = (group, elements) =>
             {
                 foreach (var element in elements)
                 {
@@ -174,7 +197,7 @@ namespace DialogEditor
 
         public void AddGroupedNode(DialogNode node, DialogNodeGroup group)
         {
-            string name = node.DialogName;
+            string name = node.DialogName.ToLower();
             node.ParentGroup = group;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
@@ -195,6 +218,7 @@ namespace DialogEditor
                     // Group exist add new node
                     DialogEditorNodeErrorData _errorData = new DialogEditorNodeErrorData();
                     _errorData.DialogNodes.Add(node);
+                    ErrorNodeCount++;
                     m_groupedNodes[group].Add(name, _errorData);
                 }
             }
@@ -208,9 +232,9 @@ namespace DialogEditor
             }
         }
 
-        public void RemoveGroupedNode(DialogNode node, Group group) 
+        public void RemoveGroupedNode(DialogNode node, Group group)
         {
-            string name = node.DialogName;
+            string name = node.DialogName.ToLower();
             node.ParentGroup = null;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
@@ -218,6 +242,7 @@ namespace DialogEditor
                 {
                     // node.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
                     errorData.DialogNodes.Remove(node);
+                    ErrorNodeCount--;
                     switch (errorData.DialogNodes.Count)
                     {
                         case 0:
@@ -276,7 +301,7 @@ namespace DialogEditor
 
         private void AddGroup(DialogNodeGroup group)
         {
-            var name = group.title;
+            var name = group.title.ToLower();
             if (!m_groups.TryGetValue(name, out var data))
             {
                 DialogEditorGroupErrorData errorData = new DialogEditorGroupErrorData();
@@ -311,13 +336,14 @@ namespace DialogEditor
             Insert(0, backGround);
         }
 
-        private void OnGroupTitleChanged() 
+        private void OnGroupTitleChanged()
         {
-            groupTitleChanged = (group, title) => 
+            groupTitleChanged = (group, title) =>
             {
                 DialogNodeGroup _group = (DialogNodeGroup)group;
+                _group.title = DialogEditorStringHelper.FormatText(group.title);
                 DeleteGroup(_group);
-                _group.PreviousTitle = title;
+                _group.PreviousTitle = _group.title;
                 AddGroup(_group);
             };
         }
@@ -336,9 +362,9 @@ namespace DialogEditor
             List<DialogNode> readyDeleteNodes = new List<DialogNode>();
             List<DialogNodeGroup> readyDeleteGroup = new List<DialogNodeGroup>();
             List<Edge> readyDeleteEdges = new List<Edge>();
-            Action<List<ISelectable>> typeCheck = (List<ISelectable> element) => 
+            Action<List<ISelectable>> typeCheck = (List<ISelectable> element) =>
             {
-                foreach (var item in element) 
+                foreach (var item in element)
                 {
                     switch (item)
                     {
@@ -367,7 +393,7 @@ namespace DialogEditor
 
                 foreach (DialogNodeGroup item in readyDeleteGroup)
                 {
-                    List<DialogNode> nodes = new List<DialogNode> ();
+                    List<DialogNode> nodes = new List<DialogNode>();
                     foreach (GraphElement element in item.containedElements)
                     {
                         if (element is DialogNode node)
@@ -396,12 +422,12 @@ namespace DialogEditor
 
         private void DeleteGroup(DialogNodeGroup group)
         {
-            string name = group.PreviousTitle;
+            string name = group.PreviousTitle.ToLower();
             if (m_groups.TryGetValue(name, out var data))
             {
                 group.UpdateGroupColor(DialogNodeGroup.GroupStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
                 data.Groups.Remove(group);
-                switch (data.Groups.Count) 
+                switch (data.Groups.Count)
                 {
                     case 0:
                         break;

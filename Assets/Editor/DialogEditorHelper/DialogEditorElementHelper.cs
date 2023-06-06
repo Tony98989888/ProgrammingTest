@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,6 +7,10 @@ namespace DialogEditor.Helper
 {
     public static class DialogEditorElementHelper
     {
+        public const string DefaultFileName = "File Name";
+        public const string DefaultLabelName = "File Name: ";
+        public const string DefaultSaveButtonName = "Save";
+
         public static Foldout CreateFoldout(string name = "Foldout", bool collapsed = false)
         {
             Foldout foldout = new Foldout()
@@ -29,11 +32,12 @@ namespace DialogEditor.Helper
             return button;
         }
 
-        public static TextField CreateTextField(string name = "TextField", EventCallback<ChangeEvent<string>> onValueChange = null)
+        public static TextField CreateTextField(string name = "TextField", string label = null, EventCallback<ChangeEvent<string>> onValueChange = null)
         {
             TextField textField = new TextField()
             {
                 value = name,
+                label = label,
             };
 
             if (onValueChange != null)
@@ -43,9 +47,9 @@ namespace DialogEditor.Helper
             return textField;
         }
 
-        public static TextField CreateTextArea(string name = "TextField", EventCallback<ChangeEvent<string>> onValueChange = null)
+        public static TextField CreateTextArea(string name = "TextField", string label = "label" ,EventCallback<ChangeEvent<string>> onValueChange = null)
         {
-            TextField textarea = CreateTextField(name, onValueChange);
+            TextField textarea = CreateTextField(name, label, onValueChange);
             textarea.multiline = true;
             return textarea;
         }
@@ -67,7 +71,8 @@ namespace DialogEditor.Helper
         }
 
         public static Vector2 GetSearchWindowLocalMousePosition(Vector2 mousePos, DialogGraphView graphView)
-        { // Need to turn a world position point into element space
+        { 
+            // Need to turn a world position point into element space
             Vector2 worldMousePos = mousePos;
             worldMousePos -= graphView.Parent.position.position;
             Vector2 localMousePos = graphView.contentViewContainer.WorldToLocal(worldMousePos);

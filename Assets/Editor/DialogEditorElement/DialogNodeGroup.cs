@@ -1,3 +1,4 @@
+using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -5,6 +6,8 @@ namespace DialogEditor
 {
     public class DialogNodeGroup : Group
     {
+        public string Id;
+
         Color m_defaultBorderColor;
         float m_defaultBorderWidth;
 
@@ -20,7 +23,7 @@ namespace DialogEditor
 
         public DialogNodeGroup(string title, Vector2 position)
         {
-
+            Id = Guid.NewGuid().ToString();
             this.title = title;
             PreviousTitle = title;
             SetPosition(position.ToRect()) ;
