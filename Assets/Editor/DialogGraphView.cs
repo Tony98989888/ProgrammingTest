@@ -1,12 +1,10 @@
-using Codice.CM.SEIDInfo;
+using DialogEditor.Data.Save;
 using DialogEditor.Helper;
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Experimental.AI;
 using UnityEngine.UIElements;
 
 
@@ -60,6 +58,7 @@ namespace DialogEditor
             OnGroupNodeAdded();
             OnGroupNodeRemoved();
             OnGroupTitleChanged();
+            OnGraphViewChanged();
 
             // Add style to graph view for customization
             InitGraphStyleSheet();
@@ -194,6 +193,41 @@ namespace DialogEditor
             };
         }
 
+        void OnGraphViewChanged() 
+        {
+            graphViewChanged = (change) => 
+            {
+                if (change.edgesToCreate != null)
+                {
+                    foreach (var edge in change.edgesToCreate)
+                    {
+                        var nextNode = (DialogNode)edge.input.node;
+                        var choiceData = (DialogEditorChoiceSaveData)edge.output.userData;
+                        choiceData.ChoiceId = nextNode.Id;
+
+                    }
+                }
+
+                if (change.elementsToRemove != null)
+                {
+                    var edgeType = typeof(Edge);
+                    // Remove edges in remove elements
+                    foreach (GraphElement element in change.elementsToRemove)
+                    {
+                        if (element.GetType() != edgeType)
+                        {
+                            continue;
+                        }
+
+                        Edge edge = (Edge)element;
+                        var choiceData = (DialogEditorChoiceSaveData)edge.output.userData;
+                        choiceData.ChoiceId = string.Empty;
+                    }
+                }
+
+                return change;
+            };
+        }
 
         public void AddGroupedNode(DialogNode node, DialogNodeGroup group)
         {

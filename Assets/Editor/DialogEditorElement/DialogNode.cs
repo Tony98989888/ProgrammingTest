@@ -1,3 +1,4 @@
+using DialogEditor.Data.Save;
 using DialogEditor.Helper;
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,10 @@ namespace DialogEditor
 
         NodeStyle m_style = NodeStyle.Normal;
 
-        DialogGraphView m_graphView;
+        protected DialogGraphView m_graphView;
 
         public string DialogName { get; set; }
-        public List<string> Choices { get; set; }
+        public List<DialogEditorChoiceSaveData> Choices { get; set; }
         public string Context { get; set; }
         public DialogType NodeType { get; set; }
 
@@ -37,7 +38,7 @@ namespace DialogEditor
             Id = Guid.NewGuid().ToString();
 
             DialogName = "Name";
-            Choices = new List<string>();
+            Choices = new List<DialogEditorChoiceSaveData>();
             Context = "Dialog Context";
             m_graphView = graphView;
 

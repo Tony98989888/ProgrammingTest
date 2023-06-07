@@ -10,7 +10,7 @@ public static class DialogEditorStringHelper
         var result = Regex.Replace(source, @"\s+", string.Empty);
         if (letterOnly) 
         {
-            result = result.Where(c => char.IsLetterOrDigit(c)).ToArray().ToString();
+            result = new string(result.Where(c => char.IsLetterOrDigit(c)).ToArray());
         }
         return result;
     }

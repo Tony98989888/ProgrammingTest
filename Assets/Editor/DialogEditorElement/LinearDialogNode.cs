@@ -1,3 +1,4 @@
+using DialogEditor.Data.Save;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -11,7 +12,11 @@ namespace  DialogEditor
         {
             base.Init(graphView, initPos);
             NodeType = DialogType.Single;
-            Choices.Add("Next Dialog");
+            DialogEditorChoiceSaveData data = new DialogEditorChoiceSaveData()
+            {
+                Text = "Next Node",
+            };
+            Choices.Add(data);
         }
 
 
@@ -23,7 +28,7 @@ namespace  DialogEditor
             {
                 Port port = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single,
                     typeof(bool));
-                port.portName = data;
+                port.userData = data;
                 outputContainer.Add(port);
             }
             
