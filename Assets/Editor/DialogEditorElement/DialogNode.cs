@@ -83,7 +83,10 @@ namespace DialogEditor
 
             Foldout textFoldout = DialogEditorElementHelper.CreateFoldout("Dialog Text");
 
-            TextField context = DialogEditorElementHelper.CreateTextArea(Context);
+            TextField context = DialogEditorElementHelper.CreateTextArea(Context, null, cb => 
+            {
+                Context = cb.newValue;
+            });
 
             context.AddToClassList("dialogeditor-node-textfield");
             context.AddToClassList("dialogeditor-node-choice-textfield");

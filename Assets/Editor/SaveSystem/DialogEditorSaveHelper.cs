@@ -48,7 +48,40 @@ namespace DialogEditor
 
         private static void SaveNodeData(DialogEditorGraphSaveData data, GraphSO graphSO)
         {
-            throw new NotImplementedException();
+            foreach (DialogNode node in DialogNodes) 
+            {
+                SaveNodeToGraph(node, data);
+            }
+        }
+
+        private static void SaveNodeToGraph(DialogNode node, DialogEditorGraphSaveData data)
+        {
+            // Solving Reference problem
+            List<DialogEditorChoiceSaveData> choicesSaveData = new List<DialogEditorChoiceSaveData>();
+
+            foreach (var choice in node.Choices)
+            {
+                DialogEditorChoiceSaveData choiceData = new DialogEditorChoiceSaveData()
+                {
+                    Text = choice.Text,
+                    ChoiceId = choice.ChoiceId,
+                };
+
+                choicesSaveData.Add(choiceData);
+            }
+
+            DialogEditorNodeSaveData nodeData = new DialogEditorNodeSaveData()
+            {
+                Id = node.Id,
+                Name = node.DialogName,
+                Choices = choicesSaveData,
+                Text = node.Context,
+                GroupId = node.ParentGroup?.Id,
+                Dialogtype = node.NodeType,
+                Position = node.GetPosition().position,
+            };
+
+            data.Nodes.Add(nodeData);
         }
 
         private static void SaveGroupData(DialogEditorGraphSaveData data, GraphSO graphSO)
