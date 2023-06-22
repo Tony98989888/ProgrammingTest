@@ -36,19 +36,51 @@ namespace DialogEditor
             LoadGraph();
             DialogEditorGraphSaveData data = InitAssets<DialogEditorGraphSaveData>("Assets/Editor/DialogEditor/Graphs", $"{GraphFileName}_Graph");
             data.Init(GraphFileName);
-            GraphSO graphSO = new GraphSO();
+            GraphSO graphSO = InitAssets<GraphSO>(GraphFolderPath, GraphFileName);
             graphSO.Init(GraphFileName);
 
             // Save groups
             SaveGroupData(data, graphSO);
+            SaveNodeData(data, graphSO);
+            SaveData(data);
+            SaveData(graphSO);
+        }
+
+        private static void SaveNodeData(DialogEditorGraphSaveData data, GraphSO graphSO)
+        {
+            throw new NotImplementedException();
         }
 
         private static void SaveGroupData(DialogEditorGraphSaveData data, GraphSO graphSO)
         {
+            // Just add all things in GraphSO and DialogEditorGraphSaveData
             foreach (DialogNodeGroup group in DialogGroups)
             {
                 SaveGraphGroupData(group, data);
+                SaveSOGroupData(group, graphSO);
             }
+        }
+
+        private static void SaveSOGroupData(DialogNodeGroup data, GraphSO graphSO)
+        {
+            var groupName = data.title;
+            InitFolder($"{GraphFolderPath}/Groups", data.title);
+            InitFolder($"{GraphFolderPath}/Groups/{groupName}", "Dialogues");
+
+            GroupSO saveData = InitAssets<GroupSO>($"{GraphFolderPath}/Groups/{groupName}", groupName);
+            saveData.Init(groupName);
+
+            graphSO.Groups.Add(saveData, new List<NodeSO>());
+            // Need to set dirty
+            SaveData(saveData);
+        }
+
+        private static void SaveData(UnityEngine.Object saveData)
+        {
+            EditorUtility.SetDirty(saveData);
+            // Calling next functions to ensure asset will be generated or sometimes it fails 
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         private static void SaveGraphGroupData(DialogNodeGroup group, DialogEditorGraphSaveData data)
