@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace DialogEditor.Save 
+namespace DialogEditor.Save
 {
-    public class NodeSO
+    public class NodeSO : ScriptableObject
     {
         public string NodeName { get; set; }
         [field: TextArea]
@@ -15,7 +15,7 @@ namespace DialogEditor.Save
 
         public bool IsStartNode { get; set; }
 
-        public void Init(string dialogName, string text, List<ChoiceData> choices, DialogType type, bool isStartNode) 
+        public void Init(string dialogName, string text, List<ChoiceData> choices, DialogType type, bool isStartNode)
         {
             NodeName = dialogName;
             Text = text;

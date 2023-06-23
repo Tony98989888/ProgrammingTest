@@ -1,11 +1,9 @@
 using DialogEditor.Data.Save;
 using DialogEditor.Save;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace DialogEditor
@@ -20,6 +18,9 @@ namespace DialogEditor
         static List<DialogNode> DialogNodes;
         static List<DialogNodeGroup> DialogGroups;
 
+        static Dictionary<string, GroupSO> ExistingDialogGroups;
+        static Dictionary<string, NodeSO> ExistingNodes;
+
         static void Initialize(DialogGraphView graphView, string graphName)
         {
             DialogGraphView = graphView;
@@ -28,6 +29,8 @@ namespace DialogEditor
 
             DialogNodes = new List<DialogNode>();
             DialogGroups = new List<DialogNodeGroup>();
+            ExistingDialogGroups = new Dictionary<string, GroupSO>();
+            ExistingNodes = new Dictionary<string, NodeSO>();
         }
 
         public static void Save()
@@ -48,11 +51,72 @@ namespace DialogEditor
 
         private static void SaveNodeData(DialogEditorGraphSaveData data, GraphSO graphSO)
         {
-            foreach (DialogNode node in DialogNodes) 
+            foreach (DialogNode node in DialogNodes)
             {
                 SaveNodeToGraph(node, data);
+                SaveSONode(node, graphSO);
+            }
+
+            SaveDialogChoiceConnection();
+        }
+
+        private static void SaveDialogChoiceConnection()
+        {
+            foreach (DialogNode node in DialogNodes)
+            {
+                NodeSO nodeSO = ExistingNodes[node.Id];
+                for (int i = 0; i < node.Choices.Count; i++)
+                {
+                    DialogEditorChoiceSaveData saveData = node.Choices[i];
+                    if (string.IsNullOrEmpty(node.Id))
+                    {
+                        continue;
+                    }
+
+                    nodeSO.Choices[i].NextNode = ExistingNodes[saveData.ChoiceId];
+                    SaveData(nodeSO);
+                }
             }
         }
+
+        private static void SaveSONode(DialogNode node, GraphSO graphSO)
+        {
+            NodeSO nodeSO;
+            if (node.ParentGroup != null)
+            {
+                nodeSO = InitAssets<NodeSO>($"{GraphFolderPath}/Groups/{node.ParentGroup.title}/Dialogues", node.DialogName);
+                graphSO.Groups.AddItem(ExistingDialogGroups[node.ParentGroup.Id], nodeSO);
+            }
+            else
+            {
+                nodeSO = InitAssets<NodeSO>($"{GraphFolderPath}/Groups/UnGrouped/Dialogues", node.DialogName);
+                graphSO.UnGroupedNodes.Add(nodeSO);
+            }
+
+            nodeSO.Init(
+            node.DialogName,
+            node.Context,
+            ToChoiceData(node.Choices),
+            node.NodeType,
+            node.IsFirstNode()
+            );
+
+            ExistingNodes.Add(node.Id, nodeSO);
+            SaveData(nodeSO);
+        }
+
+        static List<ChoiceData> ToChoiceData(List<DialogEditorChoiceSaveData> nodeChoices)
+        {
+            List<ChoiceData> choicesData = new List<ChoiceData>();
+            foreach (var choice in nodeChoices)
+            {
+                ChoiceData choiceData = new ChoiceData() { Text = choice.Text };
+                choicesData.Add(choiceData);
+            }
+
+            return choicesData;
+        }
+
 
         private static void SaveNodeToGraph(DialogNode node, DialogEditorGraphSaveData data)
         {
@@ -86,11 +150,29 @@ namespace DialogEditor
 
         private static void SaveGroupData(DialogEditorGraphSaveData data, GraphSO graphSO)
         {
+
+            List<string> groupNames = new List<string>();
             // Just add all things in GraphSO and DialogEditorGraphSaveData
             foreach (DialogNodeGroup group in DialogGroups)
             {
                 SaveGraphGroupData(group, data);
                 SaveSOGroupData(group, graphSO);
+                groupNames.Add(group.title);
+            }
+
+            SaveOldGroups(groupNames, data);
+        }
+
+        private static void SaveOldGroups(List<string> groupNames, DialogEditorGraphSaveData data)
+        {
+            // Remove Unused groups
+            if (data.PreviousGroupNames != null && data.PreviousGroupNames.Count != 0)
+            {
+                List<string> readyRemoveNames = data.PreviousGroupNames.Except(groupNames).ToList();
+                foreach (string name in readyRemoveNames)
+                {
+                    // RemoveFolderHere
+                }
             }
         }
 
@@ -102,6 +184,8 @@ namespace DialogEditor
 
             GroupSO saveData = InitAssets<GroupSO>($"{GraphFolderPath}/Groups/{groupName}", groupName);
             saveData.Init(groupName);
+
+            ExistingDialogGroups.Add(data.Id, saveData);
 
             graphSO.Groups.Add(saveData, new List<NodeSO>());
             // Need to set dirty

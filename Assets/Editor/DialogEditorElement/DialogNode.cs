@@ -2,6 +2,8 @@ using DialogEditor.Data.Save;
 using DialogEditor.Helper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,7 +16,7 @@ namespace DialogEditor
         // Unique id for reference
         public string Id;
 
-        public enum NodeStyle 
+        public enum NodeStyle
         {
             Error,
             Normal,
@@ -50,7 +52,7 @@ namespace DialogEditor
 
         public virtual void InitNodeUI()
         {
-            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, null, changeEvent => 
+            TextField dialogName = DialogEditorElementHelper.CreateTextField(DialogName, null, changeEvent =>
             {
                 TextField tmpTextField = (TextField)changeEvent.target;
                 tmpTextField.value = DialogEditorStringHelper.FormatText(changeEvent.newValue);
@@ -83,7 +85,7 @@ namespace DialogEditor
 
             Foldout textFoldout = DialogEditorElementHelper.CreateFoldout("Dialog Text");
 
-            TextField context = DialogEditorElementHelper.CreateTextArea(Context, null, cb => 
+            TextField context = DialogEditorElementHelper.CreateTextArea(Context, null, cb =>
             {
                 Context = cb.newValue;
             });
@@ -97,7 +99,7 @@ namespace DialogEditor
             extensionContainer.Add(customDataContainer);
         }
 
-        public void UpdateNodeColor(NodeStyle style, Color color) 
+        public void UpdateNodeColor(NodeStyle style, Color color)
         {
             switch (style)
             {
@@ -112,7 +114,7 @@ namespace DialogEditor
             }
         }
 
-        public void ClearPortEdges(VisualElement container) 
+        public void ClearPortEdges(VisualElement container)
         {
             foreach (Port port in container.Children())
             {
@@ -121,7 +123,7 @@ namespace DialogEditor
             }
         }
 
-        public void ClearAllPorts() 
+        public void ClearAllPorts()
         {
             ClearPortEdges(inputContainer);
             ClearPortEdges(outputContainer);
@@ -132,6 +134,12 @@ namespace DialogEditor
             base.BuildContextualMenu(evt);
             evt.menu.AppendAction("Clear Input Ports", actionEvent => ClearPortEdges(inputContainer));
             evt.menu.AppendAction("Clear Output Ports", actionEvent => ClearPortEdges(outputContainer));
+        }
+
+        public bool IsFirstNode()
+        {
+            var port = (Port)inputContainer.Children().First();
+            return !port.connected;
         }
     }
 }
