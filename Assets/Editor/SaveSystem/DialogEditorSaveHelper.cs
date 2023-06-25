@@ -3,6 +3,7 @@ using DialogEditor.Save;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -51,13 +52,69 @@ namespace DialogEditor
 
         private static void SaveNodeData(DialogEditorGraphSaveData data, GraphSO graphSO)
         {
+            List<string> unusedUngroupedNodeNames = new List<string>();
+            SerializableDictionary<string, List<string>> groupedNodes = new SerializableDictionary<string, List<string>>();
+
             foreach (DialogNode node in DialogNodes)
             {
                 SaveNodeToGraph(node, data);
                 SaveSONode(node, graphSO);
+
+                if (node.ParentGroup != null)
+                {
+                    groupedNodes.AddItem(node.ParentGroup.title, node.DialogName);
+                    continue;
+                }
+
+                unusedUngroupedNodeNames.Add(node.DialogName);
             }
 
             SaveDialogChoiceConnection();
+            UpdateGroupedNodes(groupedNodes, data);
+            UpdateUngroupedNodes(unusedUngroupedNodeNames, data);
+        }
+
+        private static void UpdateGroupedNodes(SerializableDictionary<string, List<string>> groupedNodes, DialogEditorGraphSaveData data)
+        {
+            if (data.PreviousGroupedNodes != null && data.PreviousGroupedNodes.Count != 0)
+            {
+                foreach (var groupedNode in data.PreviousGroupedNodes)
+                {
+                    List<string> nodeToRemove = new List<string>();
+
+                    if (groupedNodes.ContainsKey(groupedNode.Key))
+                    {
+                        nodeToRemove = groupedNode.Value.Except(groupedNodes[groupedNode.Key]).ToList();
+                    }
+
+                    foreach (var nodeName in nodeToRemove)
+                    {
+                        DeleteAsset($"{GraphFolderPath}/Groups/{groupedNode.Key}/Dialogues", nodeName);
+                    }
+                }
+            }
+
+            data.PreviousGroupedNodes = new SerializableDictionary<string, List<string>>(groupedNodes);
+        }
+
+        private static void UpdateUngroupedNodes(List<string> unusedUngroupedNodeNames, DialogEditorGraphSaveData data)
+        {
+            if (data.PreviousUngroupedNode != null && data.PreviousUngroupedNode.Count != 0)
+            {
+                List<string> nodesToRemove = data.PreviousUngroupedNode.Except(unusedUngroupedNodeNames).ToList();
+
+                foreach (var node in nodesToRemove)
+                {
+                    DeleteAsset($"{GraphFolderPath}/Global/Dialogues", node);
+                }
+            }
+
+            data.PreviousUngroupedNode = new List<string>(unusedUngroupedNodeNames);
+        }
+
+        private static void DeleteAsset(string path, string assetName)
+        {
+            AssetDatabase.DeleteAsset($"{path}/{assetName}.asset");
         }
 
         private static void SaveDialogChoiceConnection()
@@ -160,10 +217,10 @@ namespace DialogEditor
                 groupNames.Add(group.title);
             }
 
-            SaveOldGroups(groupNames, data);
+            UpdateUnusedGroups(groupNames, data);
         }
 
-        private static void SaveOldGroups(List<string> groupNames, DialogEditorGraphSaveData data)
+        private static void UpdateUnusedGroups(List<string> groupNames, DialogEditorGraphSaveData data)
         {
             // Remove Unused groups
             if (data.PreviousGroupNames != null && data.PreviousGroupNames.Count != 0)
@@ -172,8 +229,17 @@ namespace DialogEditor
                 foreach (string name in readyRemoveNames)
                 {
                     // RemoveFolderHere
+                    DeleteFolder($"{GraphFolderPath}/Groups/{name}");
                 }
             }
+
+            data.PreviousGroupNames = new List<string>(groupNames);
+        }
+
+        private static void DeleteFolder(string folderPath)
+        {
+            FileUtil.DeleteFileOrDirectory($"{folderPath}.meta");
+            FileUtil.DeleteFileOrDirectory($"{folderPath}/");
         }
 
         private static void SaveSOGroupData(DialogNodeGroup data, GraphSO graphSO)
