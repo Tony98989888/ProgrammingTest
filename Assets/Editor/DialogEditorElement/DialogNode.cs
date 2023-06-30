@@ -3,7 +3,6 @@ using DialogEditor.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -56,6 +55,21 @@ namespace DialogEditor
             {
                 TextField tmpTextField = (TextField)changeEvent.target;
                 tmpTextField.value = DialogEditorStringHelper.FormatText(changeEvent.newValue);
+                if (string.IsNullOrEmpty(tmpTextField.value))
+                {
+                    if (!string.IsNullOrEmpty(DialogName)) 
+                    {
+                        ++m_graphView.ErrorNameCount;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(DialogName))
+                    {
+                        --m_graphView.ErrorNameCount;
+                    }
+                }
+
 
                 if (m_group == null)
                 {

@@ -12,6 +12,7 @@ namespace DialogEditor
 
         Button m_saveButton;
         TextField m_fileNameTextField;
+        DialogGraphView m_graphView;
 
         [MenuItem("Window/UI Toolkit/DialogEditorWindow")]
         public static void ShowExample()
@@ -41,19 +42,28 @@ namespace DialogEditor
         {
             Toolbar toolbar = new Toolbar();
             m_fileNameTextField = DialogEditorElementHelper.CreateTextField(DialogEditorElementHelper.DefaultFileName, DialogEditorElementHelper.DefaultLabelName
-                , callback => {
+                , callback =>
+                {
                     m_fileNameTextField.value = DialogEditorStringHelper.FormatText(callback.newValue);
                 }
                 );
-            var saveButton = DialogEditorElementHelper.CreateButton(DialogEditorElementHelper.DefaultSaveButtonName);
-            m_saveButton = new Button()
-            {
-                text = DialogEditorElementHelper.DefaultSaveButtonName,
-            };
+            var saveButton = DialogEditorElementHelper.CreateButton(DialogEditorElementHelper.DefaultSaveButtonName, () => Save());
             toolbar.Add(m_fileNameTextField);
             toolbar.Add(m_saveButton);
             toolbar.ApplyStyleSheet("Assets/DialogEditorResource/DialogEditorToolbarStyle.uss");
+
             rootVisualElement.Add(toolbar);
+        }
+
+        private void Save()
+        {
+            if (string.IsNullOrEmpty(m_fileNameTextField.text)) 
+            {
+                EditorUtility.DisplayDialog("Invalid File Name", "File name can not be empty!", "Yes");
+                return;
+            }
+            DialogEditorSaveHelper.Initialize(m_graphView, m_fileNameTextField.value);
+            DialogEditorSaveHelper.Save();
         }
 
         private void InitStyleSheets()
@@ -63,9 +73,9 @@ namespace DialogEditor
 
         private void InitGraphView()
         {
-            var graphView = new DialogGraphView(this);
-            graphView.StretchToParentSize();
-            rootVisualElement.Add(graphView);
+            m_graphView = new DialogGraphView(this);
+            m_graphView.StretchToParentSize();
+            rootVisualElement.Add(m_graphView);
         }
 
         public void ActiveSaveButton(bool state)

@@ -3,7 +3,6 @@ using DialogEditor.Save;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace DialogEditor
         static Dictionary<string, GroupSO> ExistingDialogGroups;
         static Dictionary<string, NodeSO> ExistingNodes;
 
-        static void Initialize(DialogGraphView graphView, string graphName)
+        public static void Initialize(DialogGraphView graphView, string graphName)
         {
             DialogGraphView = graphView;
             GraphFileName = graphName;

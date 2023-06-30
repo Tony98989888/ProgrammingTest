@@ -21,15 +21,15 @@ namespace DialogEditor
         SerializableDictionary<Group, SerializableDictionary<string, DialogEditorNodeErrorData>> m_groupedNodes;
         SerializableDictionary<string, DialogEditorGroupErrorData> m_groups;
 
-        int m_errorNodeCount = 0;
+        int m_errorNameCount = 0;
 
-        public int ErrorNodeCount
+        public int ErrorNameCount
         {
-            get { return m_errorNodeCount; }
+            get { return m_errorNameCount; }
             set
             {
-                m_errorNodeCount = value;
-                if (m_errorNodeCount == 0)
+                m_errorNameCount = value;
+                if (m_errorNameCount == 0)
                 {
                     // TODO Enable save funciton button
                     m_window.ActiveSaveButton(true);
@@ -126,7 +126,7 @@ namespace DialogEditor
             else
             {
                 m_unGroupedNodes[nodeName].DialogNodes.Add(node);
-                ErrorNodeCount++;
+                ErrorNameCount++;
                 //Have duplicated nodes means error
                 foreach (var item in m_unGroupedNodes[nodeName].DialogNodes)
                 {
@@ -143,7 +143,7 @@ namespace DialogEditor
             {
                 node.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
                 data.DialogNodes.Remove(node);
-                ErrorNodeCount--;
+                ErrorNameCount--;
                 switch (data.DialogNodes.Count)
                 {
                     case 0:
@@ -252,7 +252,7 @@ namespace DialogEditor
                     // Group exist add new node
                     DialogEditorNodeErrorData _errorData = new DialogEditorNodeErrorData();
                     _errorData.DialogNodes.Add(node);
-                    ErrorNodeCount++;
+                    ErrorNameCount++;
                     m_groupedNodes[group].Add(name, _errorData);
                 }
             }
@@ -276,7 +276,7 @@ namespace DialogEditor
                 {
                     // node.UpdateNodeColor(DialogNode.NodeStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
                     errorData.DialogNodes.Remove(node);
-                    ErrorNodeCount--;
+                    ErrorNameCount--;
                     switch (errorData.DialogNodes.Count)
                     {
                         case 0:
@@ -376,6 +376,22 @@ namespace DialogEditor
             {
                 DialogNodeGroup _group = (DialogNodeGroup)group;
                 _group.title = DialogEditorStringHelper.FormatText(group.title);
+
+                if (string.IsNullOrEmpty(_group.title))
+                {
+                    if (!string.IsNullOrEmpty(_group.PreviousTitle))
+                    {
+                        ++ErrorNameCount;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(_group.PreviousTitle))
+                    {
+                        --ErrorNameCount;
+                    }
+                }
+
                 DeleteGroup(_group);
                 _group.PreviousTitle = _group.title;
                 AddGroup(_group);
