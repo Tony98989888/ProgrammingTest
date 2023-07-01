@@ -37,8 +37,9 @@ namespace DialogEditor
                 else
                 {
                     // TODO Disable save button
-                    m_window.ActiveSaveButton(false);
+                    m_window.ActiveSaveButton(true);
                 }
+                Debug.LogError($"Error nodes: {m_errorNameCount}");
             }
         }
 
@@ -232,7 +233,7 @@ namespace DialogEditor
         public void AddGroupedNode(DialogNode node, DialogNodeGroup group)
         {
             string name = node.DialogName.ToLower();
-            node.ParentGroup = group;
+            node.Group = group;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
                 if (data.TryGetValue(name, out var errorData))
@@ -269,7 +270,7 @@ namespace DialogEditor
         public void RemoveGroupedNode(DialogNode node, Group group)
         {
             string name = node.DialogName.ToLower();
-            node.ParentGroup = null;
+            node.Group = null;
             if (m_groupedNodes.TryGetValue(group, out var data))
             {
                 if (data.TryGetValue(name, out var errorData))
@@ -349,6 +350,7 @@ namespace DialogEditor
                 Color errorColor = data.ErrorData.ErrorColor;
                 foreach (var item in data.Groups)
                 {
+                    ErrorNameCount++;
                     item.UpdateGroupColor(DialogNodeGroup.GroupStyle.Error, errorColor);
                 }
             }
@@ -459,9 +461,9 @@ namespace DialogEditor
 
                 foreach (var item in readyDeleteNodes)
                 {
-                    if (item.ParentGroup != null)
+                    if (item.Group != null)
                     {
-                        item.ParentGroup.RemoveElement(item);
+                        item.Group.RemoveElement(item);
                     }
                     RemoveUngroupedNode(item);
                     item.ClearAllPorts();
@@ -483,6 +485,7 @@ namespace DialogEditor
                         break;
                     case 1:
                         data.Groups[0].UpdateGroupColor(DialogNodeGroup.GroupStyle.Normal, DialogEditorStyleSheetHelper.DefaultNodeBGColor);
+                        --ErrorNameCount;
                         break;
                 }
             }

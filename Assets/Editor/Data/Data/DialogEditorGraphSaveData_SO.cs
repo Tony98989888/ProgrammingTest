@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace DialogEditor.Data.Save 
 {
-    public class DialogEditorGraphSaveData : ScriptableObject
+    public class DialogEditorGraphSaveData_SO : ScriptableObject
     {
         public string FileName { get; set; }
         public List<DialogEditorGroupSaveData> Groups { get; set; }
         public List<DialogEditorNodeSaveData> Nodes { get; set; }
         public List<string> PreviousGroupNames { get; set; }
-        public List<string> PreviousUngroupedNode { get; set; }
+        public List<string> PreviousUngroupedNodeNames { get; set; }
 
         public SerializableDictionary<string, List<string>> PreviousGroupedNodes { get; set; }
 

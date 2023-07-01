@@ -47,7 +47,7 @@ namespace DialogEditor
                     m_fileNameTextField.value = DialogEditorStringHelper.FormatText(callback.newValue);
                 }
                 );
-            var saveButton = DialogEditorElementHelper.CreateButton(DialogEditorElementHelper.DefaultSaveButtonName, () => Save());
+            m_saveButton = DialogEditorElementHelper.CreateButton(DialogEditorElementHelper.DefaultSaveButtonName, () => Save());
             toolbar.Add(m_fileNameTextField);
             toolbar.Add(m_saveButton);
             toolbar.ApplyStyleSheet("Assets/DialogEditorResource/DialogEditorToolbarStyle.uss");

@@ -32,7 +32,7 @@ namespace DialogEditor
 
         // The group node is currently in
         private DialogNodeGroup m_group;
-        public DialogNodeGroup ParentGroup { get => m_group; set => m_group = value; }
+        public DialogNodeGroup Group { get => m_group; set => m_group = value; }
 
         public virtual void Init(DialogGraphView graphView, Vector2 initPos)
         {

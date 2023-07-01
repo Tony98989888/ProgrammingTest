@@ -13,7 +13,7 @@ namespace DialogEditor.Data.Save
         public string Text { get; set; }
         public List<DialogEditorChoiceSaveData> Choices { get; set; }
 
-        public DialogType Dialogtype { get; set; }
+        public DialogType Type { get; set; }
         public Vector2 Position { get; set; }
     }
 }
